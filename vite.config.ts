@@ -8,7 +8,7 @@ export default defineConfig({
   base: './',
   build: {
     rollupOptions: {
-      external: '@mediapipe/face_mesh',
+      external: './@mediapipe/face_mesh',
     },
   },
   plugins: [react(), tailwindcss()],
