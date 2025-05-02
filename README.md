@@ -1,1 +1,1 @@
-https://laurentdellanegra.github.io/sky-reco/
+https://sky-reco.vercel.app/
