@@ -5,12 +5,6 @@ import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: './',
-  build: {
-    rollupOptions: {
-      external: 'sky-reco/@mediapipe/face_mesh',
-    },
-  },
   plugins: [react(), tailwindcss()],
   publicDir: './public/',
   resolve: {
