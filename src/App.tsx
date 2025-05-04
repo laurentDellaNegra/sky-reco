@@ -1,9 +1,10 @@
 import { AppSidebar } from './components/app-sidebar'
 import { SiteHeader } from './components/site-header'
-import { WebcamCard } from './components/webcam-card'
+import { WebcamCard } from './features/face/components/webcam/webcam-card'
 import { ThemeProvider } from './components/theme/theme-provider'
 import { SidebarInset, SidebarProvider } from './components/ui/sidebar'
-import { SettingsCard } from './components/settings-card'
+import { SettingsCard } from './features/face/components/settings/settings-card'
+import { Toaster } from './components/ui/sonner'
 
 export default function App() {
   return (
@@ -24,6 +25,7 @@ export default function App() {
           </div>
         </SidebarInset>
       </SidebarProvider>
+      <Toaster />
     </ThemeProvider>
   )
 }

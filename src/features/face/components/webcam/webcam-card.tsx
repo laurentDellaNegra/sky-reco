@@ -2,8 +2,10 @@ import * as faceLandmarksDetection from '@tensorflow-models/face-landmarks-detec
 import { useCallback, useEffect, useRef, useState } from 'react'
 import Webcam from 'react-webcam'
 import { calculateEAR, LEFT_EYE, RIGHT_EYE } from '@/lib/ear'
-import { Card } from './ui/card'
+import { Card } from '../../../../components/ui/card'
 import { drawResults } from '@/lib/draw-canvas'
+import { useFaceStore } from '@/features/face/store'
+import { EyeState } from './eye-state'
 
 export function WebcamCard() {
   const detector = useRef<faceLandmarksDetection.FaceLandmarksDetector>(null)
@@ -13,6 +15,7 @@ export function WebcamCard() {
   const [isDetecting, setIsDetecting] = useState(false)
   const [isFace, setIsFace] = useState(false)
   const requestRef = useRef<number>(null)
+  const sensitivity = useFaceStore.use.sensitivity()
 
   const loadModel = () => {
     return faceLandmarksDetection.createDetector(
@@ -71,14 +74,13 @@ export function WebcamCard() {
     const leftEAR = calculateEAR(LEFT_EYE, keypoints)
     const rightEAR = calculateEAR(RIGHT_EYE, keypoints)
 
-    // Typical threshold for eye closure is 0.2
-    if (leftEAR < 0.2 && rightEAR < 0.2) {
+    if (leftEAR < sensitivity && rightEAR < sensitivity) {
       setEyesClosed(true)
     } else {
       setEyesClosed(false)
     }
     requestRef.current = requestAnimationFrame(detect)
-  }, [])
+  }, [sensitivity])
 
   useEffect(() => {
     requestRef.current = requestAnimationFrame(detect)
@@ -89,14 +91,17 @@ export function WebcamCard() {
 
   return (
     <div className="flex flex-1 flex-col gap-4 md:gap-6">
-      <Card className="w-full py-0 relative">
+      <Card className="w-full py-0 relative rounded-lg">
         <Webcam
           ref={webcamRef}
           width={'100%'}
           height={'auto'}
           className="rounded-lg"
         />
-        <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
+        <canvas
+          ref={canvasRef}
+          className="absolute inset-0 w-full h-full rounded-lg"
+        />
       </Card>
       <div className="grid grid-cols-2 gap-4">
         <div className="p-4 border rounded-lg">
@@ -116,18 +121,11 @@ export function WebcamCard() {
           </div>
         </div>
 
-        <div className="p-4 border rounded-lg">
-          <div className="text-sm text-muted-foreground">Eyes state</div>
-          <div className="font-medium">
-            {!isDetecting || !isFace ? (
-              <span className="text-gray-500">Not detecting</span>
-            ) : eyesClosed ? (
-              <span className="text-red-600">Closed</span>
-            ) : (
-              <span className="text-green-600">Open</span>
-            )}
-          </div>
-        </div>
+        <EyeState
+          eyesClosed={eyesClosed}
+          isDetecting={isDetecting}
+          isFace={isFace}
+        />
       </div>
     </div>
   )
