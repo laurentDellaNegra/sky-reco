@@ -1,4 +1,4 @@
-import { RotateCcwIcon, SaveIcon } from 'lucide-react'
+import { RotateCcwIcon } from 'lucide-react'
 import { Button } from '../../../../components/ui/button'
 import {
   Card,
@@ -15,10 +15,6 @@ import { AlertSound } from './alert-sound'
 
 export function SettingsCard() {
   const reset = useFaceStore.use.reset()
-
-  const handleSaveSettings = () => {
-    console.log('todo')
-  }
 
   return (
     <Card className="flex flex-1 ">
