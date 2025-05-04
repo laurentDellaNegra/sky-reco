@@ -27,19 +27,20 @@ export function calculateEAR(
   const vertical2 = euclideanDist(p3, p5)
   const horizontal = euclideanDist(p1, p4)
 
-  console.log({ vertical1 })
-  console.log({ vertical2 })
-  console.log({ horizontal })
+  // console.log({ vertical1 })
+  // console.log({ vertical2 })
+  // console.log({ horizontal })
 
-  console.log({ p1 })
-  console.log({ p2 })
-  console.log({ p3 })
-  console.log({ p4 })
-  console.log({ p5 })
-  console.log({ p6 })
-  console.log(
-    '(vertical1 + vertical2) / (2.0 * horizontal)',
-    (vertical1 + vertical2) / (2.0 * horizontal)
-  )
+  // console.log({ p1 })
+  // console.log({ p2 })
+  // console.log({ p3 })
+  // console.log({ p4 })
+  // console.log({ p5 })
+  // console.log({ p6 })
+  // console.log(
+  //   '(vertical1 + vertical2) / (2.0 * horizontal)',
+  //   (vertical1 + vertical2) / (2.0 * horizontal)
+  // )
+
   return (vertical1 + vertical2) / (2.0 * horizontal)
 }
