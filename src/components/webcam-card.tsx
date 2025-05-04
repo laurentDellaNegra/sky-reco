@@ -3,16 +3,16 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import Webcam from 'react-webcam'
 import { calculateEAR, LEFT_EYE, RIGHT_EYE } from '@/lib/ear'
 import { Card } from './ui/card'
+import { drawResults } from '@/lib/draw-canvas'
 
 export function WebcamCard() {
-  const detector = useRef<faceLandmarksDetection.FaceLandmarksDetector | null>(
-    null
-  )
-  const intervalId = useRef<ReturnType<typeof setInterval> | null>(null)
+  const detector = useRef<faceLandmarksDetection.FaceLandmarksDetector>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
   const [eyesClosed, setEyesClosed] = useState<boolean | null>(null)
-  const webcamRef = useRef<Webcam | null>(null)
+  const webcamRef = useRef<Webcam>(null)
   const [isDetecting, setIsDetecting] = useState(false)
   const [isFace, setIsFace] = useState(false)
+  const requestRef = useRef<number>(null)
 
   const loadModel = () => {
     return faceLandmarksDetection.createDetector(
@@ -30,8 +30,13 @@ export function WebcamCard() {
       detector.current = await loadModel()
     }
 
-    if (webcamRef.current?.video?.readyState !== 4 || !detector.current) {
+    if (
+      webcamRef.current?.video?.readyState !== 4 ||
+      !detector.current ||
+      !canvasRef.current
+    ) {
       setIsDetecting(false)
+      requestRef.current = requestAnimationFrame(detect)
       return
     }
 
@@ -42,13 +47,27 @@ export function WebcamCard() {
     // console.log(faces)
     if (!faces || faces.length === 0) {
       setIsFace(false)
+      requestRef.current = requestAnimationFrame(detect)
       return
     }
+    const face = faces[0]
     setIsFace(true)
 
-    const keypoints = faces[0].keypoints.map(
-      (k) => [k.x, k.y] as [number, number]
-    )
+    // Get video dimensions
+    const videoWidth = webcamRef.current.video.videoWidth
+    const videoHeight = webcamRef.current.video.videoHeight
+
+    // Set canvas dimensions to match video
+    canvasRef.current.width = videoWidth
+    canvasRef.current.height = videoHeight
+
+    // Clear canvas
+    if (!canvasRef.current) return
+    const ctx = canvasRef.current.getContext('2d')
+    if (!ctx) return
+    drawResults(ctx, face, false, false)
+
+    const keypoints = face.keypoints.map((k) => [k.x, k.y] as [number, number])
     const leftEAR = calculateEAR(LEFT_EYE, keypoints)
     const rightEAR = calculateEAR(RIGHT_EYE, keypoints)
 
@@ -58,65 +77,26 @@ export function WebcamCard() {
     } else {
       setEyesClosed(false)
     }
-  }, [])
-
-  const startDetecting = useCallback(() => {
-    intervalId.current = setInterval(() => {
-      detect()
-    }, 100)
-  }, [detect])
-
-  const stopDetecting = useCallback(() => {
-    if (intervalId.current) clearInterval(intervalId.current)
+    requestRef.current = requestAnimationFrame(detect)
   }, [])
 
   useEffect(() => {
-    startDetecting()
+    requestRef.current = requestAnimationFrame(detect)
     return () => {
-      stopDetecting()
+      if (requestRef.current) cancelAnimationFrame(requestRef.current)
     }
-  }, [startDetecting, stopDetecting])
-
-  // const handleRetryPermission = async () => {
-  //   await navigator.permissions.query({ name: 'camera' as PermissionName })
-  //   window.location.reload()
-  // }
+  }, [detect])
 
   return (
     <div className="flex flex-1 flex-col gap-4 md:gap-6">
       <Card className="w-full py-0 relative">
-        {/* {!isDetecting && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center">
-            <AlertCircleIcon className="w-12 h-12 mb-2 text-red-400" />
-            <h3 className="text-xl font-bold">Camera Access Required</h3>
-            <p className="mt-2 max-w-md">
-              {permissionError ||
-                'Please allow access to your camera to use the eye detection feature.'}
-            </p>
-
-            <div className="mt-6 space-y-4">
-              <div className="bg-black/40 p-4 rounded-lg max-w-md text-sm">
-                <h4 className="font-bold mb-2">How to enable camera access:</h4>
-                <ol className="list-decimal list-inside space-y-2 text-left">
-                  <li>Click the camera icon in your browser's address bar</li>
-                  <li>Select "Allow" for camera access</li>
-                  <li>Refresh the page or click the retry button below</li>
-                </ol>
-              </div>
-
-              <Button onClick={handleRetryPermission} className="mt-4">
-                <RefreshCwIcon className="w-4 h-4 mr-2" />
-                Retry Camera Access
-              </Button>
-            </div>
-          </div>
-        )} */}
         <Webcam
           ref={webcamRef}
           width={'100%'}
           height={'auto'}
           className="rounded-lg"
         />
+        <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
       </Card>
       <div className="grid grid-cols-2 gap-4">
         <div className="p-4 border rounded-lg">
