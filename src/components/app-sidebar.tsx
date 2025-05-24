@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { ScanFaceIcon, SquareActivityIcon } from 'lucide-react'
+import { AudioLinesIcon, ScanFaceIcon, SquareActivityIcon } from 'lucide-react'
 
 import {
   Sidebar,
@@ -12,6 +12,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
+import { Link } from '@tanstack/react-router'
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
@@ -23,10 +24,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-              <a href="#">
+              <Link to="/">
                 <SquareActivityIcon className="h-5 w-5" />
                 <span className="text-base font-semibold">SkyReco</span>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -36,13 +37,24 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarGroupContent className="flex flex-col gap-2">
             <SidebarMenu>
               <SidebarMenuItem className="flex items-center gap-2">
-                <SidebarMenuButton
-                  tooltip="Quick Create"
-                  className="min-w-8 bg-secondary text-secondary-foreground duration-200 ease-linear hover:bg-secondary/90 hover:text-secondary-foreground active:bg-secondary/90 active:text-secondary-foreground"
-                >
-                  <ScanFaceIcon />
-                  <span>Sky Face</span>
-                </SidebarMenuButton>
+                <Link to="/sky-face" className="flex-1">
+                  {({ isActive }) => (
+                    <SidebarMenuButton isActive={isActive}>
+                      <ScanFaceIcon />
+                      Sky Face
+                    </SidebarMenuButton>
+                  )}
+                </Link>
+              </SidebarMenuItem>
+              <SidebarMenuItem className="flex items-center gap-2">
+                <Link to="/sky-voice" className="flex-1">
+                  {({ isActive }) => (
+                    <SidebarMenuButton isActive={isActive}>
+                      <AudioLinesIcon />
+                      Sky Voice
+                    </SidebarMenuButton>
+                  )}
+                </Link>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
